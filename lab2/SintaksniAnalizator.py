@@ -21,14 +21,14 @@ class SintaksniAnalizator:
         self.it = iter(self.data)
         self.curr_line = next(self.it, None)
         self.lista_naredbi()
-        print(self.output)
+        print(self.output.strip())
 
     def lista_naredbi(self):
         self.output += self.indent * " " + "<lista_naredbi>"
         self.indent += 1
-        if self.curr_line is None or self.curr_line.strip() == "":
-            self.output += '\n' + self.indent * " " + "$"
-            self.indent -= 2
+        if self.curr_line is None or self.curr_line.strip() == "" or self.curr_line.strip().split()[0] == "KR_AZ":
+            self.output += '\n' + self.indent * " " + "$\n"
+            self.indent -= 1
             return
         self.naredba()
         self.lista_naredbi()
@@ -39,10 +39,6 @@ class SintaksniAnalizator:
         if self.curr_line:
             if self.curr_line.strip().split()[0] == "KR_ZA":
                 self.za()
-            elif self.curr_line.strip().split()[0] == "KR_DO":
-                self.do()
-            elif self.curr_line.strip().split()[0] == "KR_AZ":
-                self.az()
             elif self.curr_line.strip().split()[0] == "IDN":
                 self.idn()
         self.indent -= 1
@@ -57,6 +53,9 @@ class SintaksniAnalizator:
             exit(0)
         self.output += self.indent * " " + self.curr_line.strip() + "\n"
         self.curr_line = next(self.it, None)
+        if not self.curr_line:
+            print("err kraj")
+            exit(0)
         self.e()
         self.indent -= 1
 
@@ -77,20 +76,22 @@ class SintaksniAnalizator:
     def p(self) -> None:
         self.output += self.indent * " " + "<P>\n"
         self.indent += 1
-        first_word = self.curr_line.strip().split()[0]
-        if first_word in ["OP_PLUS", "OP_MINUS"]:
-            self.output += self.indent * " " + self.curr_line.strip() + "\n"
-            self.curr_line = next(self.it, None)
-            self.p()
-        elif first_word == "L_ZAGRADA":
-            self.output += self.indent * " " + self.curr_line.strip() + "\n"
-            self.curr_line = next(self.it, None)
-            self.e()
-            self.output += self.indent * " " + self.curr_line.strip() + "\n"
-        elif first_word in ["IDN", "BROJ"]:
-            self.output += self.indent * " " + self.curr_line.strip() + "\n"
+        if self.curr_line:
+            first_word = self.curr_line.strip().split()[0]
+            if first_word in ["OP_PLUS", "OP_MINUS"]:
+                self.output += self.indent * " " + self.curr_line.strip() + "\n"
+                self.curr_line = next(self.it, None)
+                self.p()
+            elif first_word == "L_ZAGRADA":
+                self.output += self.indent * " " + self.curr_line.strip() + "\n"
+                self.curr_line = next(self.it, None)
+                self.e()
+                self.output += self.indent * " " + self.curr_line.strip() + "\n"
+                self.curr_line = next(self.it, None)
+            elif first_word in ["IDN", "BROJ"]:
+                self.output += self.indent * " " + self.curr_line.strip() + "\n"
+                self.curr_line = next(self.it, None)
         self.indent -= 1
-        self.curr_line = next(self.it, None)
 
     def t_lista(self) -> None:
         self.output += self.indent * " " + "<T_lista>\n"
@@ -118,14 +119,29 @@ class SintaksniAnalizator:
     def za(self):
         self.output += self.indent * " " + "<za_petlja>\n"
         self.indent += 1
+        self.output += self.indent * " " + self.curr_line.strip() + "\n"
+        self.curr_line = next(self.it, None)
         # idn
         self.output += self.indent * " " + self.curr_line.strip() + "\n"
         self.curr_line = next(self.it, None)
         # od
         self.output += self.indent * " " + self.curr_line.strip() + "\n"
         self.curr_line = next(self.it, None)
+        if not self.curr_line:
+            print("err kraj")
+            exit(0)
+        if self.curr_line.strip().split()[0] not in ["OP_PLUS", "OP_MINUS"]:
+            print(f"err {self.curr_line}", end="")
+            exit(0)
         self.e()
-        self.lista_naredbi() # how to now process az
+        # do
+        self.output += self.indent * " " + self.curr_line.strip() + "\n"
+        self.curr_line = next(self.it, None)
+        self.e()
+        self.lista_naredbi()  # how to now process az
+        self.indent -= 1
+        self.output += self.indent * " " + self.curr_line.strip() + "\n"
+        self.curr_line = next(self.it, None)
         self.indent -= 1
 
     def do(self):
