@@ -130,7 +130,7 @@ class SintaksniAnalizator:
         if not self.curr_line:
             print("err kraj")
             exit(0)
-        if self.curr_line.strip().split()[0] not in ["OP_PLUS", "OP_MINUS"]:
+        if self.curr_line.strip().split()[0] == "KR_DO":
             print(f"err {self.curr_line}", end="")
             exit(0)
         self.e()
