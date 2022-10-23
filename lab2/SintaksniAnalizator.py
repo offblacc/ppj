@@ -26,12 +26,16 @@ class SintaksniAnalizator:
     def lista_naredbi(self):
         self.output += self.indent * " " + "<lista_naredbi>"
         self.indent += 1
-        if self.curr_line is None or self.curr_line.strip() == "" or self.curr_line.strip().split()[0] == "KR_AZ":
+        if self.curr_line is None or self.curr_line.strip() == "":
             self.output += '\n' + self.indent * " " + "$\n"
             self.indent -= 1
-            return
-        self.naredba()
-        self.lista_naredbi()
+        elif self.curr_line.strip().split()[0] == "KR_AZ":
+            self.output += '\n' + self.indent * " " + "$\n"
+            self.indent -= 1
+        else:
+            self.naredba()
+            self.lista_naredbi()
+            self.indent -= 1
 
     def naredba(self) -> None:
         self.output += "\n" + self.indent * " " + "<naredba>\n"
@@ -139,7 +143,6 @@ class SintaksniAnalizator:
         self.curr_line = next(self.it, None)
         self.e()
         self.lista_naredbi()  # how to now process az
-        self.indent -= 1
         self.output += self.indent * " " + self.curr_line.strip() + "\n"
         self.curr_line = next(self.it, None)
         self.indent -= 1
