@@ -39,6 +39,9 @@ class SintaksniAnalizator:
                 self.za()
             elif self.curr_line.strip().split()[0] == "IDN":
                 self.idn()
+            else:
+                print(f"err {self.curr_line}", end="")
+                exit(0)
         self.indent -= 1
 
     def idn(self) -> None:
@@ -112,15 +115,20 @@ class SintaksniAnalizator:
     def za(self):
         self.output += self.calc_indent() + "<za_petlja>\n"
         self.indent += 1
+        # for kw in ["IDN" "KR_OD", "KR_DO"]
+
         self.append_and_move()
         self.exit_if_eof()
+        self.exit_if_not_type("IDN")
+
         self.append_and_move()
         self.exit_if_eof()
+        self.exit_if_not_type("KR_OD")
+
         self.append_and_move()
         self.exit_if_eof()
-        if self.curr_line.strip().split()[0] == "KR_DO":
-            print(f"err {self.curr_line}", end="")
-            exit(0)
+        self.exit_if_type("KR_DO")
+
         self.e()
         # do
         self.append_and_move()
@@ -139,6 +147,16 @@ class SintaksniAnalizator:
     def exit_if_eof(self):
         if not self.curr_line:
             print("err kraj")
+            exit(0)
+
+    def exit_if_type(self, typ: str):
+        if self.curr_line.strip().split()[0] == typ:
+            print(f"err {self.curr_line}", end="")
+            exit(0)
+
+    def exit_if_not_type(self, typ: str):
+        if self.curr_line.strip().split()[0] != typ:
+            print(f"err {self.curr_line}", end="")
             exit(0)
 
 
