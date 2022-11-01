@@ -48,9 +48,7 @@ class SintaksniAnalizator:
         self.output += self.calc_indent() + "<naredba_pridruzivanja>\n"
         self.indent += 1
         self.append_and_move()
-        if self.curr_line.strip().split()[0] != "OP_PRIDRUZI":
-            print("err" + self.curr_line)
-            exit(0)
+        self.exit_if_not_type("OP_PRIDRUZI")
         self.append_and_move()
         self.exit_if_eof()
         self.e()
@@ -84,6 +82,7 @@ class SintaksniAnalizator:
                 self.curr_line = next(self.it, None)
                 self.e()
                 self.output += self.calc_indent() + self.curr_line.strip() + "\n"
+                self.exit_if_not_type("D_ZAGRADA")
                 self.curr_line = next(self.it, None)
             elif first_word in ["IDN", "BROJ"]:
                 self.output += self.calc_indent() + self.curr_line.strip() + "\n"
@@ -115,7 +114,6 @@ class SintaksniAnalizator:
     def za(self):
         self.output += self.calc_indent() + "<za_petlja>\n"
         self.indent += 1
-        # for kw in ["IDN" "KR_OD", "KR_DO"]
 
         self.append_and_move()
         self.exit_if_eof()
